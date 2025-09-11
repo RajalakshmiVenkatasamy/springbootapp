@@ -12,9 +12,11 @@ spec:
       labels:
         app: springbootapp
     spec:
+      nodeSelector:
+        agentpool: smallpool
       containers:
       - name: my-springboot-app
-        image: myacrrepo23.azurecr.io/rajalakshmivenkatasamy/springbootapp:#{Build.BuildId}#
+        image: myacrrepo23.azurecr.io/rajalakshmivenkatasamy/springbootapp:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8085
