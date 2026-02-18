@@ -13,7 +13,7 @@ spec:
         app: springbootapp
     spec:
       nodeSelector:
-        agentpool: smallpool
+        agentpool: nodepool1
       containers:
       - name: my-springboot-app
         image: myspringbootacr.azurecr.io/rajalakshmivenkatasamy/springbootapp:#{Build.BuildId}#
