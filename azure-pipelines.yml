@@ -1,47 +1,36 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - main
 
-resources:
-- repo: self
-
 variables:
-  tag: '$(Build.BuildId)'
+  imageName: springbootapp
+  tag: $(Build.BuildId)
 
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - task: Maven@4
-      inputs:
-        mavenPomFile: 'pom.xml'
-        goals: 'install'
-        publishJUnitResults: true
-        testResultsFiles: '**/surefire-reports/TEST-*.xml'
-        javaHomeOption: 'JDKVersion'
-        mavenVersionOption: 'Default'
-        mavenAuthenticateFeed: false
-        effectivePomSkip: false
-        sonarQubeRunAnalysis: false
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        repository: $(imageName)
-        tags: |
-          $(tag)
-    - task: ArtifactoryDocker@1
-      inputs:
-        command: 'push'
-        artifactoryService: 'Art_SVC_conn'
-        targetRepo: 'docker-local'
-        imageName: '$(imageName):$(tag)'
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+
+# 1️⃣ Build Spring Boot JAR
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean package'
+    publishJUnitResults: false
+
+# 2️⃣ Build Docker Image & Push to ACR
+- task: Docker@2
+  inputs:
+    containerRegistry: 'ACR-ServiceConnection'   # Your Docker/ACR service connection
+    repository: $(imageName)
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(tag)
+
+# 3️⃣ Deploy to AKS
+- task: KubernetesManifest@1
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: 'AKS-ServiceConnection'  # Your AKS service connection
+    manifests: |
+     aks-deploy-from-acr.yaml     
