@@ -32,4 +32,7 @@ steps:
     action: deploy
     kubernetesServiceConnection: 'myspringbootaks'  # Your AKS service connection
     manifests: |
-     aks-deploy-from-acr.yaml     
+     aks-deploy-from-acr.yaml  
+    containers: |
+      myaksacr98765.azurecr.io/springbootapp:$(Build.BuildId)
+    arguments: '--validate=false'
