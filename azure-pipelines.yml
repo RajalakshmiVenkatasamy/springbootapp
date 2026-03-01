@@ -1,5 +1,5 @@
 trigger:
-main
+- main
 variables:
   imageName: springbootapp
   tag: $(Build.BuildId)
