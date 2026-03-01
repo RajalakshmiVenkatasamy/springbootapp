@@ -26,14 +26,14 @@ steps:
     tags: |
       $(tag)
 
-# 3️⃣ Deploy to AKS
+ # 3️⃣ Deploy to AKS
 - task: KubernetesManifest@1
   inputs:
     action: deploy
     kubernetesServiceConnection: 'AkS-ServiceConnection'  # Your AKS service connection
     manifests: |
-     aks-deploy-from-acr.yaml 
-   containers: |
+      aks-deploy-from-acr.yaml
+    containers: |
       myaksacr98765.azurecr.io/springbootapp:$(Build.BuildId)
-   arguments: '--validate=false'
+    arguments: '--validate=false'
     
