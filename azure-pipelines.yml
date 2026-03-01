@@ -1,6 +1,5 @@
 trigger:
-- main
-
+none
 variables:
   imageName: springbootapp
   tag: $(Build.BuildId)
@@ -31,6 +30,6 @@ steps:
 - task: KubernetesManifest@1
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'AKS-ServiceConnection'  # Your AKS service connection
+    kubernetesServiceConnection: 'myspringbootaks'  # Your AKS service connection
     manifests: |
      aks-deploy-from-acr.yaml     
