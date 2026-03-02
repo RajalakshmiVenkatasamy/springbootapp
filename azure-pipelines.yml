@@ -16,17 +16,17 @@ steps:
     goals: 'clean package'
     publishJUnitResults: false
 
-# 2️⃣ Build Docker Image & Push to ACR
+# 2️⃣ Build Docker Image (ONLY BUILD, no push)
 - task: Docker@2
   inputs:
-    containerRegistry: 'ACR-ServiceConnection'   # Your Docker/ACR service connection1
+    containerRegistry: 'ACR-ServiceConnection'
     repository: $(imageName)
-    command: 'buildAndPush'
+    command: 'build'
     Dockerfile: '**/Dockerfile'
     tags: |
       $(tag)
 
-# Install Trivy
+# 2.5️⃣ Install Trivy
 - script: |
     sudo apt-get update
     sudo apt-get install -y wget apt-transport-https gnupg lsb-release
@@ -37,10 +37,19 @@ steps:
     trivy --version
   displayName: Install Trivy
 
-# Scan Docker image
+# 2.6️⃣ Scan Local Docker Image BEFORE PUSH
 - script: |
-    trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress myaksacr98765.azurecr.io/springbootapp:$(Build.BuildId)
+    trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress $(imageName):$(tag)
   displayName: Scan Docker Image
+
+# 3️⃣ Push Docker Image to ACR (only if scan passes)
+- task: Docker@2
+  inputs:
+    containerRegistry: 'ACR-ServiceConnection'
+    repository: $(imageName)
+    command: 'push'
+    tags: |
+      $(tag)
 
   
  # 3️⃣ Deploy to AKS
