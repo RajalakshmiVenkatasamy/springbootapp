@@ -19,7 +19,7 @@ steps:
 # 2️⃣ Build Docker Image & Push to ACR
 - task: Docker@2
   inputs:
-    containerRegistry: 'ACR-ServiceConnection'   # Your Docker/ACR service connection
+    containerRegistry: 'ACR-ServiceConnection'   # Your Docker/ACR service connection1
     repository: $(imageName)
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
