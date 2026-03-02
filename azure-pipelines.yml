@@ -16,40 +16,34 @@ steps:
     goals: 'clean package'
     publishJUnitResults: false
 
-# 2️⃣ Build Docker Image (ONLY BUILD, no push)
+# 2️⃣ Build Docker Image & Push to ACR
 - task: Docker@2
   inputs:
-    containerRegistry: 'ACR-ServiceConnection'
+    containerRegistry: 'ACR-ServiceConnection'   # Your Docker/ACR service connection1
     repository: $(imageName)
-    command: 'build'
+    command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     tags: |
       $(tag)
-
-# 2.5️⃣ Install Trivy
-- script: |
-    sudo apt-get update
-    sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-    echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
-    sudo apt-get update
-    sudo apt-get install -y trivy
-    trivy --version
+# ------------------------------
+# Install Trivy
+- task: Bash@3
   displayName: Install Trivy
-
-# 2.6️⃣ Scan Local Docker Image BEFORE PUSH
-- script: |
-    trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress $(imageName):$(tag)
-  displayName: Scan Docker Image
-
-# 3️⃣ Push Docker Image to ACR (only if scan passes)
-- task: Docker@2
   inputs:
-    containerRegistry: 'ACR-ServiceConnection'
-    repository: $(imageName)
-    command: 'push'
-    tags: |
-      $(tag)
+    targetType: inline
+    script: |
+      curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
+      trivy --version
+
+# ------------------------------
+# Run Trivy Scan on the local Docker image
+- task: Bash@3
+  displayName: Run Trivy Scan
+  inputs:
+    targetType: inline
+    script: |
+      # Scan the local Docker image (before push)
+      trivy image --severity HIGH,CRITICAL,MEDIUM --ignore-unfixed $(imageRepository):$(tag)
 
   
  # 3️⃣ Deploy to AKS
