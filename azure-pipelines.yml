@@ -41,16 +41,16 @@ steps:
       trivy --version
 
 # ------------------------------
-# 2️⃣ Run Trivy Scan on the local Docker image
 - task: Bash@3
   displayName: Run Trivy Scan
   inputs:
     targetType: inline
     script: |
-      # Scan the local image built earlier
-      trivy image --severity HIGH,CRITICAL,MEDIUM --ignore-unfixed $(imageRepository):$(tag)
-
-
+      echo "Scanning Docker image..."
+      trivy image --severity HIGH,CRITICAL,MEDIUM --ignore-unfixed $IMAGE_REPOSITORY:$TAG
+  env:
+    IMAGE_REPOSITORY: $(imageRepository)
+    TAG: $(tag)
   
  # 3️⃣ Deploy to AKS
 - task: KubernetesManifest@1
