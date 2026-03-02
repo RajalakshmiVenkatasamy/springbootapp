@@ -13,7 +13,7 @@ spec:
         app: springbootapp
     spec:
       nodeSelector:
-        agentpool: nodepool1
+        agentpool: default
       containers:
       - name: my-springboot-app
         image: myaksacr98765.azurecr.io/springbootapp:$(Build.BuildId)
