@@ -26,24 +26,30 @@ steps:
     tags: |
       $(tag)
 # ------------------------------
-# Install Trivy
+# 1️⃣ Install Trivy (stable method)
 - task: Bash@3
   displayName: Install Trivy
   inputs:
     targetType: inline
     script: |
-      curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
+      sudo apt-get update
+      sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+      wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+      echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
+      sudo apt-get update
+      sudo apt-get install -y trivy
       trivy --version
 
 # ------------------------------
-# Run Trivy Scan on the local Docker image
+# 2️⃣ Run Trivy Scan on the local Docker image
 - task: Bash@3
   displayName: Run Trivy Scan
   inputs:
     targetType: inline
     script: |
-      # Scan the local Docker image (before push)
+      # Scan the local image built earlier
       trivy image --severity HIGH,CRITICAL,MEDIUM --ignore-unfixed $(imageRepository):$(tag)
+
 
   
  # 3️⃣ Deploy to AKS
