@@ -30,7 +30,7 @@ steps:
 - task: KubernetesManifest@1
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'AkS-ServiceConnection'  # Your AKS service connection
+    kubernetesServiceConnection: 'AKS-CONNECTION-NEW-2026'  # Your AKS service connection
     manifests: |
       aks-deploy-from-acr.yaml
     containers: |
