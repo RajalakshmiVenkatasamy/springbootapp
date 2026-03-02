@@ -34,7 +34,8 @@ steps:
     sudo apt-get update
     sudo apt-get install -y trivy
     trivy --version
-  displayName: Install Trivy
+    trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress myaksacr98765.azurecr.io/springbootapp:$(Build.BuildId)
+  displayName: Scan Docker Image
   
  # 3️⃣ Deploy to AKS
 - task: KubernetesManifest@1
